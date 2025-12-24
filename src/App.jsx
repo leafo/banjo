@@ -17,16 +17,36 @@ const STRINGS = [
 
 const NUM_FRETS = 15;
 
-// Chords in the key of G major
-const CHORDS = [
-  { name: 'G', notes: ['G', 'B', 'D'], type: 'major' },
-  { name: 'Am', notes: ['A', 'C', 'E'], type: 'minor' },
-  { name: 'Bm', notes: ['B', 'D', 'F#'], type: 'minor' },
-  { name: 'C', notes: ['C', 'E', 'G'], type: 'major' },
-  { name: 'D', notes: ['D', 'F#', 'A'], type: 'major' },
-  { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor' },
-  { name: 'F#dim', notes: ['F#', 'A', 'C'], type: 'dim' },
-];
+// Chords by key
+const CHORDS_BY_KEY = {
+  G: [
+    { name: 'G', notes: ['G', 'B', 'D'], type: 'major' },
+    { name: 'Am', notes: ['A', 'C', 'E'], type: 'minor' },
+    { name: 'Bm', notes: ['B', 'D', 'F#'], type: 'minor' },
+    { name: 'C', notes: ['C', 'E', 'G'], type: 'major' },
+    { name: 'D', notes: ['D', 'F#', 'A'], type: 'major' },
+    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor' },
+    { name: 'F#dim', notes: ['F#', 'A', 'C'], type: 'dim' },
+  ],
+  C: [
+    { name: 'C', notes: ['C', 'E', 'G'], type: 'major' },
+    { name: 'Dm', notes: ['D', 'F', 'A'], type: 'minor' },
+    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor' },
+    { name: 'F', notes: ['F', 'A', 'C'], type: 'major' },
+    { name: 'G', notes: ['G', 'B', 'D'], type: 'major' },
+    { name: 'Am', notes: ['A', 'C', 'E'], type: 'minor' },
+    { name: 'Bdim', notes: ['B', 'D', 'F'], type: 'dim' },
+  ],
+  D: [
+    { name: 'D', notes: ['D', 'F#', 'A'], type: 'major' },
+    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor' },
+    { name: 'F#m', notes: ['F#', 'A', 'C#'], type: 'minor' },
+    { name: 'G', notes: ['G', 'B', 'D'], type: 'major' },
+    { name: 'A', notes: ['A', 'C#', 'E'], type: 'major' },
+    { name: 'Bm', notes: ['B', 'D', 'F#'], type: 'minor' },
+    { name: 'C#dim', notes: ['C#', 'E', 'G'], type: 'dim' },
+  ],
+};
 
 function getNoteAtFret(openNote, fret) {
   const startIndex = NOTES.indexOf(openNote);
@@ -120,12 +140,25 @@ function Fretboard({ highlightedChord }) {
   );
 }
 
-function ChordList({ onChordHover, highlightedChord }) {
+function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange }) {
+  const chords = CHORDS_BY_KEY[selectedKey];
+
   return (
     <div className="chord-list">
-      <h3 className="chord-list-title">Chords in G Major</h3>
+      <div className="key-selector">
+        <label htmlFor="key-select">Key:</label>
+        <select
+          id="key-select"
+          value={selectedKey}
+          onChange={(e) => onKeyChange(e.target.value)}
+        >
+          <option value="G">G Major</option>
+          <option value="C">C Major</option>
+          <option value="D">D Major</option>
+        </select>
+      </div>
       <p className="chord-list-subtitle">Hover to highlight notes</p>
-      {CHORDS.map(chord => (
+      {chords.map(chord => (
         <div
           key={chord.name}
           className={`chord-item ${highlightedChord?.name === chord.name ? 'active' : ''}`}
@@ -153,6 +186,12 @@ function ChordList({ onChordHover, highlightedChord }) {
 
 export default function App() {
   const [highlightedChord, setHighlightedChord] = useState(null);
+  const [selectedKey, setSelectedKey] = useState('G');
+
+  const handleKeyChange = (key) => {
+    setSelectedKey(key);
+    setHighlightedChord(null);
+  };
 
   return (
     <div className="container">
@@ -163,6 +202,8 @@ export default function App() {
         <ChordList
           onChordHover={setHighlightedChord}
           highlightedChord={highlightedChord}
+          selectedKey={selectedKey}
+          onKeyChange={handleKeyChange}
         />
       </div>
     </div>
