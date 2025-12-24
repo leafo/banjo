@@ -55,7 +55,6 @@ function Fretboard({ highlightedChord }) {
     <div className="fretboard-container">
       {/* Fret numbers column */}
       <div className="fret-number-column">
-        <div className="fret-number"></div> {/* Empty space for string labels */}
         {Array.from({ length: NUM_FRETS + 1 }, (_, fret) => (
           <div key={fret} className="fret-number">
             {fret === 0 ? 'Open' : fret}
@@ -66,12 +65,6 @@ function Fretboard({ highlightedChord }) {
       {/* String columns */}
       {STRINGS.map((string, stringIndex) => (
         <div key={string.name} className="string-column">
-          {/* String label at top */}
-          <div className="string-label">
-            <span className="string-name">({string.name})</span>
-            <span className="open-note">{string.openNote}</span>
-          </div>
-
           {/* Frets */}
           {Array.from({ length: NUM_FRETS + 1 }, (_, fret) => {
             // For 5th string, only show from fret 5 onwards
@@ -108,7 +101,6 @@ function Fretboard({ highlightedChord }) {
 
       {/* Fret markers column */}
       <div className="fret-marker-column">
-        <div className="fret-marker-cell"></div> {/* Empty for string labels */}
         {Array.from({ length: NUM_FRETS + 1 }, (_, fret) => (
           <div key={fret} className="fret-marker-cell">
             {[3, 5, 7, 10, 12, 15].includes(fret) && (
