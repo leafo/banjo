@@ -81,7 +81,7 @@ function getScaleDegree(note, scale) {
   return index >= 0 ? index + 1 : null;
 }
 
-function Fretboard({ highlightedChord, showDegrees, selectedKey }) {
+function Fretboard({ highlightedChord, showDegrees, selectedKey, pentatonic }) {
   const highlightNotes = highlightedChord ? highlightedChord.notes : [];
   const scale = SCALES[selectedKey];
 
@@ -117,16 +117,18 @@ function Fretboard({ highlightedChord, showDegrees, selectedKey }) {
             if (fret === 0 || fret === string.startFret) fretClasses.push('nut');
 
             const scaleDegree = getScaleDegree(note, scale);
-            const isInScale = scaleDegree !== null;
+            const isPentatonicDegree = scaleDegree !== null && scaleDegree !== 4 && scaleDegree !== 7;
+            const isInScaleBase = pentatonic ? isPentatonicDegree : scaleDegree !== null;
+            const isInScale = isInScaleBase || isHighlighted || isRootNote;
             const isScaleRoot = scaleDegree === 1;
 
             const noteClasses = ['note'];
             if (isRootNote) noteClasses.push('root');
             else if (isHighlighted) noteClasses.push('highlighted');
-            if (showDegrees && isScaleRoot) noteClasses.push('scale-root');
+            else if (showDegrees && isScaleRoot) noteClasses.push('scale-root');
             if (showDegrees && !isInScale) noteClasses.push('not-in-scale');
 
-            const displayText = showDegrees ? (isInScale ? scaleDegree : '') : note;
+            const displayText = showDegrees ? (isInScale ? (scaleDegree || note) : '') : note;
 
             return (
               <div key={fret} className={fretClasses.join(' ')}>
@@ -162,7 +164,7 @@ function Fretboard({ highlightedChord, showDegrees, selectedKey }) {
   );
 }
 
-function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange, showDegrees, onToggleDegrees }) {
+function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange, showDegrees, onToggleDegrees, pentatonic, onTogglePentatonic }) {
   const chords = CHORDS_BY_KEY[selectedKey];
 
   return (
@@ -188,6 +190,16 @@ function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange, s
           />
           <span>Show scale degrees</span>
         </label>
+        {showDegrees && (
+          <label className="toggle">
+            <input
+              type="checkbox"
+              checked={pentatonic}
+              onChange={(e) => onTogglePentatonic(e.target.checked)}
+            />
+            <span>Pentatonic</span>
+          </label>
+        )}
       </div>
       <p className="chord-list-subtitle">Hover to highlight notes</p>
       {chords.map(chord => (
@@ -220,6 +232,7 @@ export default function App() {
   const [highlightedChord, setHighlightedChord] = useState(null);
   const [selectedKey, setSelectedKey] = useState('G');
   const [showDegrees, setShowDegrees] = useState(false);
+  const [pentatonic, setPentatonic] = useState(false);
 
   const handleKeyChange = (key) => {
     setSelectedKey(key);
@@ -235,6 +248,7 @@ export default function App() {
           highlightedChord={highlightedChord}
           showDegrees={showDegrees}
           selectedKey={selectedKey}
+          pentatonic={pentatonic}
         />
         <ChordList
           onChordHover={setHighlightedChord}
@@ -243,6 +257,8 @@ export default function App() {
           onKeyChange={handleKeyChange}
           showDegrees={showDegrees}
           onToggleDegrees={setShowDegrees}
+          pentatonic={pentatonic}
+          onTogglePentatonic={setPentatonic}
         />
       </div>
     </div>
