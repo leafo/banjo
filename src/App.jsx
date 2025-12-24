@@ -18,6 +18,13 @@ const STRINGS = [
 const NUM_FRETS = 15;
 
 // Chords by key
+// Scale notes by key (for scale degree display)
+const SCALES = {
+  G: ['G', 'A', 'B', 'C', 'D', 'E', 'F#'],
+  C: ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+  D: ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'],
+};
+
 const CHORDS_BY_KEY = {
   G: [
     { name: 'G', notes: ['G', 'B', 'D'], type: 'major' },
@@ -68,8 +75,15 @@ function isNoteInChord(note, chordNotes) {
   return chordNotes.some(cn => normalizeNote(cn) === normalizedNote);
 }
 
-function Fretboard({ highlightedChord }) {
+function getScaleDegree(note, scale) {
+  const normalizedNote = normalizeNote(note);
+  const index = scale.findIndex(n => normalizeNote(n) === normalizedNote);
+  return index >= 0 ? index + 1 : null;
+}
+
+function Fretboard({ highlightedChord, showDegrees, selectedKey }) {
   const highlightNotes = highlightedChord ? highlightedChord.notes : [];
+  const scale = SCALES[selectedKey];
 
   return (
     <div className="fretboard-container">
@@ -102,14 +116,22 @@ function Fretboard({ highlightedChord }) {
             if (isOpen) fretClasses.push('open-fret');
             if (fret === 0 || fret === string.startFret) fretClasses.push('nut');
 
+            const scaleDegree = getScaleDegree(note, scale);
+            const isInScale = scaleDegree !== null;
+            const isScaleRoot = scaleDegree === 1;
+
             const noteClasses = ['note'];
             if (isRootNote) noteClasses.push('root');
             else if (isHighlighted) noteClasses.push('highlighted');
+            if (showDegrees && isScaleRoot) noteClasses.push('scale-root');
+            if (showDegrees && !isInScale) noteClasses.push('not-in-scale');
+
+            const displayText = showDegrees ? (isInScale ? scaleDegree : '') : note;
 
             return (
               <div key={fret} className={fretClasses.join(' ')}>
                 <div className={noteClasses.join(' ')}>
-                  {note}
+                  {displayText}
                 </div>
                 {fret > 0 && fret !== string.startFret && <div className="fret-wire"></div>}
                 <div className={`string-line ${stringIndex === 0 ? 'thin' : ''}`}></div>
@@ -140,7 +162,7 @@ function Fretboard({ highlightedChord }) {
   );
 }
 
-function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange }) {
+function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange, showDegrees, onToggleDegrees }) {
   const chords = CHORDS_BY_KEY[selectedKey];
 
   return (
@@ -156,6 +178,16 @@ function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange })
           <option value="C">C Major</option>
           <option value="D">D Major</option>
         </select>
+      </div>
+      <div className="toggle-container">
+        <label className="toggle">
+          <input
+            type="checkbox"
+            checked={showDegrees}
+            onChange={(e) => onToggleDegrees(e.target.checked)}
+          />
+          <span>Show scale degrees</span>
+        </label>
       </div>
       <p className="chord-list-subtitle">Hover to highlight notes</p>
       {chords.map(chord => (
@@ -187,6 +219,7 @@ function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange })
 export default function App() {
   const [highlightedChord, setHighlightedChord] = useState(null);
   const [selectedKey, setSelectedKey] = useState('G');
+  const [showDegrees, setShowDegrees] = useState(false);
 
   const handleKeyChange = (key) => {
     setSelectedKey(key);
@@ -198,12 +231,18 @@ export default function App() {
       <h1 className="title">Banjo Fretboard Visualizer</h1>
       <p className="subtitle">Standard G Tuning (gDGBD)</p>
       <div className="main">
-        <Fretboard highlightedChord={highlightedChord} />
+        <Fretboard
+          highlightedChord={highlightedChord}
+          showDegrees={showDegrees}
+          selectedKey={selectedKey}
+        />
         <ChordList
           onChordHover={setHighlightedChord}
           highlightedChord={highlightedChord}
           selectedKey={selectedKey}
           onKeyChange={handleKeyChange}
+          showDegrees={showDegrees}
+          onToggleDegrees={setShowDegrees}
         />
       </div>
     </div>
