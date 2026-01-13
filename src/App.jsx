@@ -4,16 +4,39 @@ import './App.css';
 // Chromatic scale
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-// Standard G tuning - strings from left to right as you face the banjo
-// String 4 (D), String 3 (G), String 2 (B), String 1 (D)
-// String 5 (high G) starts at fret 5
-const STRINGS = [
+// Banjo - Standard G tuning (gDGBD)
+// String 5 (high G) starts at fret 5 (short string)
+const BANJO_STRINGS = [
   { name: '5', openNote: 'G', startFret: 5 },  // Short string (high g)
   { name: '4', openNote: 'D', startFret: 0 },
   { name: '3', openNote: 'G', startFret: 0 },
   { name: '2', openNote: 'B', startFret: 0 },
   { name: '1', openNote: 'D', startFret: 0 },
 ];
+
+// Guitar - Standard tuning (EADGBE) - low to high
+const GUITAR_STRINGS = [
+  { name: '6', openNote: 'E', startFret: 0 },  // Low E
+  { name: '5', openNote: 'A', startFret: 0 },
+  { name: '4', openNote: 'D', startFret: 0 },
+  { name: '3', openNote: 'G', startFret: 0 },
+  { name: '2', openNote: 'B', startFret: 0 },
+  { name: '1', openNote: 'E', startFret: 0 },  // High E
+];
+
+// Instrument configurations
+const INSTRUMENTS = {
+  banjo: {
+    name: 'Banjo',
+    tuning: 'gDGBD',
+    strings: BANJO_STRINGS,
+  },
+  guitar: {
+    name: 'Guitar',
+    tuning: 'EADGBE',
+    strings: GUITAR_STRINGS,
+  },
+};
 
 const NUM_FRETS = 15;
 
@@ -81,7 +104,7 @@ function getScaleDegree(note, scale) {
   return index >= 0 ? index + 1 : null;
 }
 
-function Fretboard({ highlightedChord, showDegrees, selectedKey, pentatonic }) {
+function Fretboard({ highlightedChord, showDegrees, selectedKey, pentatonic, strings }) {
   const highlightNotes = highlightedChord ? highlightedChord.notes : [];
   const scale = SCALES[selectedKey];
 
@@ -97,7 +120,7 @@ function Fretboard({ highlightedChord, showDegrees, selectedKey, pentatonic }) {
       </div>
 
       {/* String columns */}
-      {STRINGS.map((string, stringIndex) => (
+      {strings.map((string, stringIndex) => (
         <div key={string.name} className="string-column">
           {/* Frets */}
           {Array.from({ length: NUM_FRETS + 1 }, (_, fret) => {
@@ -164,11 +187,22 @@ function Fretboard({ highlightedChord, showDegrees, selectedKey, pentatonic }) {
   );
 }
 
-function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange, showDegrees, onToggleDegrees, pentatonic, onTogglePentatonic }) {
+function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange, showDegrees, onToggleDegrees, pentatonic, onTogglePentatonic, instrument, onInstrumentChange }) {
   const chords = CHORDS_BY_KEY[selectedKey];
 
   return (
     <div className="chord-list">
+      <div className="instrument-selector">
+        <label htmlFor="instrument-select">Instrument:</label>
+        <select
+          id="instrument-select"
+          value={instrument}
+          onChange={(e) => onInstrumentChange(e.target.value)}
+        >
+          <option value="banjo">Banjo</option>
+          <option value="guitar">Guitar</option>
+        </select>
+      </div>
       <div className="key-selector">
         <label htmlFor="key-select">Key:</label>
         <select
@@ -233,22 +267,26 @@ export default function App() {
   const [selectedKey, setSelectedKey] = useState('G');
   const [showDegrees, setShowDegrees] = useState(false);
   const [pentatonic, setPentatonic] = useState(false);
+  const [instrument, setInstrument] = useState('banjo');
 
   const handleKeyChange = (key) => {
     setSelectedKey(key);
     setHighlightedChord(null);
   };
 
+  const currentInstrument = INSTRUMENTS[instrument];
+
   return (
     <div className="container">
-      <h1 className="title">Banjo Fretboard Visualizer</h1>
-      <p className="subtitle">Standard G Tuning (gDGBD)</p>
+      <h1 className="title">{currentInstrument.name} Fretboard Visualizer</h1>
+      <p className="subtitle">Standard Tuning ({currentInstrument.tuning})</p>
       <div className="main">
         <Fretboard
           highlightedChord={highlightedChord}
           showDegrees={showDegrees}
           selectedKey={selectedKey}
           pentatonic={pentatonic}
+          strings={currentInstrument.strings}
         />
         <ChordList
           onChordHover={setHighlightedChord}
@@ -259,6 +297,8 @@ export default function App() {
           onToggleDegrees={setShowDegrees}
           pentatonic={pentatonic}
           onTogglePentatonic={setPentatonic}
+          instrument={instrument}
+          onInstrumentChange={setInstrument}
         />
       </div>
     </div>
