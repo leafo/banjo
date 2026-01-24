@@ -249,9 +249,15 @@
   margin-bottom: 15px;
 }
 
-.chord-item {
-  padding: 12px 15px;
+.chord-row {
+  display: flex;
+  gap: 8px;
   margin-bottom: 8px;
+}
+
+.chord-item {
+  flex: 1;
+  padding: 12px 15px;
   background-color: #f9f9f9;
   border-radius: 8px;
   cursor: pointer;
@@ -314,4 +320,10 @@
 .legend-dot.highlighted {
   background-color: #4CAF50;
   border-color: #2E7D32;
+}
+
+/* Chord extension button */
+.chord-extension {
+  flex: 0 0 40%;
+  text-align: center;
 }

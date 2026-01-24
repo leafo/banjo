@@ -50,30 +50,30 @@ const SCALES = {
 
 const CHORDS_BY_KEY = {
   G: [
-    { name: 'G', notes: ['G', 'B', 'D'], type: 'major' },
-    { name: 'Am', notes: ['A', 'C', 'E'], type: 'minor' },
-    { name: 'Bm', notes: ['B', 'D', 'F#'], type: 'minor' },
-    { name: 'C', notes: ['C', 'E', 'G'], type: 'major' },
-    { name: 'D', notes: ['D', 'F#', 'A'], type: 'major' },
-    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor' },
+    { name: 'G', notes: ['G', 'B', 'D'], type: 'major', extension: { note: 'F#', type: 'maj7', notes: ['G', 'B', 'D', 'F#'] } },
+    { name: 'Am', notes: ['A', 'C', 'E'], type: 'minor', extension: { note: 'G', type: 'm7', notes: ['A', 'C', 'E', 'G'] } },
+    { name: 'Bm', notes: ['B', 'D', 'F#'], type: 'minor', extension: { note: 'A', type: 'm7', notes: ['B', 'D', 'F#', 'A'] } },
+    { name: 'C', notes: ['C', 'E', 'G'], type: 'major', extension: { note: 'B', type: 'maj7', notes: ['C', 'E', 'G', 'B'] } },
+    { name: 'D', notes: ['D', 'F#', 'A'], type: 'major', extension: { note: 'C', type: '7', notes: ['D', 'F#', 'A', 'C'] } },
+    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor', extension: { note: 'D', type: 'm7', notes: ['E', 'G', 'B', 'D'] } },
     { name: 'F#dim', notes: ['F#', 'A', 'C'], type: 'dim' },
   ],
   C: [
-    { name: 'C', notes: ['C', 'E', 'G'], type: 'major' },
-    { name: 'Dm', notes: ['D', 'F', 'A'], type: 'minor' },
-    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor' },
-    { name: 'F', notes: ['F', 'A', 'C'], type: 'major' },
-    { name: 'G', notes: ['G', 'B', 'D'], type: 'major' },
-    { name: 'Am', notes: ['A', 'C', 'E'], type: 'minor' },
+    { name: 'C', notes: ['C', 'E', 'G'], type: 'major', extension: { note: 'B', type: 'maj7', notes: ['C', 'E', 'G', 'B'] } },
+    { name: 'Dm', notes: ['D', 'F', 'A'], type: 'minor', extension: { note: 'C', type: 'm7', notes: ['D', 'F', 'A', 'C'] } },
+    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor', extension: { note: 'D', type: 'm7', notes: ['E', 'G', 'B', 'D'] } },
+    { name: 'F', notes: ['F', 'A', 'C'], type: 'major', extension: { note: 'E', type: 'maj7', notes: ['F', 'A', 'C', 'E'] } },
+    { name: 'G', notes: ['G', 'B', 'D'], type: 'major', extension: { note: 'F', type: '7', notes: ['G', 'B', 'D', 'F'] } },
+    { name: 'Am', notes: ['A', 'C', 'E'], type: 'minor', extension: { note: 'G', type: 'm7', notes: ['A', 'C', 'E', 'G'] } },
     { name: 'Bdim', notes: ['B', 'D', 'F'], type: 'dim' },
   ],
   D: [
-    { name: 'D', notes: ['D', 'F#', 'A'], type: 'major' },
-    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor' },
-    { name: 'F#m', notes: ['F#', 'A', 'C#'], type: 'minor' },
-    { name: 'G', notes: ['G', 'B', 'D'], type: 'major' },
-    { name: 'A', notes: ['A', 'C#', 'E'], type: 'major' },
-    { name: 'Bm', notes: ['B', 'D', 'F#'], type: 'minor' },
+    { name: 'D', notes: ['D', 'F#', 'A'], type: 'major', extension: { note: 'C#', type: 'maj7', notes: ['D', 'F#', 'A', 'C#'] } },
+    { name: 'Em', notes: ['E', 'G', 'B'], type: 'minor', extension: { note: 'D', type: 'm7', notes: ['E', 'G', 'B', 'D'] } },
+    { name: 'F#m', notes: ['F#', 'A', 'C#'], type: 'minor', extension: { note: 'E', type: 'm7', notes: ['F#', 'A', 'C#', 'E'] } },
+    { name: 'G', notes: ['G', 'B', 'D'], type: 'major', extension: { note: 'F#', type: 'maj7', notes: ['G', 'B', 'D', 'F#'] } },
+    { name: 'A', notes: ['A', 'C#', 'E'], type: 'major', extension: { note: 'G', type: '7', notes: ['A', 'C#', 'E', 'G'] } },
+    { name: 'Bm', notes: ['B', 'D', 'F#'], type: 'minor', extension: { note: 'A', type: 'm7', notes: ['B', 'D', 'F#', 'A'] } },
     { name: 'C#dim', notes: ['C#', 'E', 'G'], type: 'dim' },
   ],
 };
@@ -237,14 +237,28 @@ function ChordList({ onChordHover, highlightedChord, selectedKey, onKeyChange, s
       </div>
       <p className="chord-list-subtitle">Hover to highlight notes</p>
       {chords.map(chord => (
-        <div
-          key={chord.name}
-          className={`chord-item ${highlightedChord?.name === chord.name ? 'active' : ''}`}
-          onMouseEnter={() => onChordHover(chord)}
-          onMouseLeave={() => onChordHover(null)}
-        >
-          <span className="chord-name">{chord.name}</span>
-          <span className="chord-notes">{chord.notes.join(' - ')}</span>
+        <div key={chord.name} className="chord-row">
+          <div
+            className={`chord-item ${highlightedChord?.name === chord.name ? 'active' : ''}`}
+            onMouseEnter={() => onChordHover(chord)}
+            onMouseLeave={() => onChordHover(null)}
+          >
+            <span className="chord-name">{chord.name}</span>
+            <span className="chord-notes">{chord.notes.join(' - ')}</span>
+          </div>
+          {chord.extension && (
+            <div
+              className={`chord-item chord-extension ${highlightedChord?.name === chord.name + chord.extension.type ? 'active' : ''}`}
+              onMouseEnter={() => onChordHover({
+                name: chord.name + chord.extension.type,
+                notes: chord.extension.notes
+              })}
+              onMouseLeave={() => onChordHover(null)}
+            >
+              <span className="chord-name">{chord.extension.type}</span>
+              <span className="chord-notes">{chord.extension.note}</span>
+            </div>
+          )}
         </div>
       ))}
       <div className="legend">
